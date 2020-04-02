@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd">
+	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="8639351e-9588-4dec-95a1-824f36be6157" >
+		<http:listener-connection host="0.0.0.0" port="8081" />
+	</http:listener-config>
+	<http:request-config name="HTTP_Request_configuration" doc:name="HTTP Request configuration" doc:id="2f2b3894-aac6-441f-8919-228d49f26783">
+		<http:request-connection protocol="HTTPS" host="kp-apiv2-auth.azurewebsites.net" />
+	</http:request-config>
+	<flow name="main_flow" doc:id="216c2848-4eb1-4cb1-bb00-ba586201339a" >
+		<set-variable value="#[message.attributes.uriParams.itemID]" doc:name="Set Variable" doc:id="efc3867e-6e93-4e55-82c8-b2ddf4bbf304" variableName="itemID"/>
+		<logger level="DEBUG" doc:name="Logger" doc:id="10cab4be-0dcf-4a08-abe3-3c1e4529c709" message="#[vars.itemID]"/>
+		<http:request method="GET" doc:name="HTTP GET Request" doc:id="69573f79-48d6-4b53-bb4e-c17fe4f13ba7" config-ref="HTTP_Request_configuration" path="/api/v2/products/{ID}">
+			<http:uri-params ><![CDATA[#[output application/java
+---
+{
+	"ID" : vars.itemID
+}]]]></http:uri-params>
+		</http:request>
+	</flow>
+</mule>
