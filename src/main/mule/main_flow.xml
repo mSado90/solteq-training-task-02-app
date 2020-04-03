@@ -29,13 +29,12 @@ output application/json
 			productId: item.productID,
 			productCategoryId: item.productSizes.productCategoryID[0],
 			quantity: sizeOf(payload filter $ == item.productID)
-	}, 	grandTotal: if (isEmpty(vars.acc) == false) vars.acc.price reduce (value, sum = 0) -> sum + value as Number 
-					else "Please make any order!"
+	}, 	grandTotal: vars.acc.price reduce (value, sum = 0) -> sum + value as Number 
+			
 
 }]]></ee:set-payload>
 			</ee:message>
 		</ee:transform>
-		<logger level="INFO" doc:name="Logger" doc:id="f1635d9f-ba69-4e15-a644-49809d371ff4" message="#[sizeOf(payload)]"/>
 	</flow>
 	<sub-flow name="callHTTPRequest" doc:id="a52e1ffb-94d3-478d-9c35-44045616896f" >
 		<http:request method="GET" doc:name="Request" doc:id="c25f1019-aaec-426f-8aef-f343fa26a185" config-ref="HTTP_Request_configuration" path="/api/v2/products/{ID}">
