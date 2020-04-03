@@ -1,24 +1,49 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<mule xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns="http://www.mulesoft.org/schema/mule/core"
-	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
-http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd">
-	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="8639351e-9588-4dec-95a1-824f36be6157" >
-		<http:listener-connection host="0.0.0.0" port="8081" />
-	</http:listener-config>
-	<http:request-config name="HTTP_Request_configuration" doc:name="HTTP Request configuration" doc:id="2f2b3894-aac6-441f-8919-228d49f26783">
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<http:request-config name="HTTP_Request_configuration" doc:name="HTTP Request configuration" doc:id="06d7a756-3f90-4b78-94fe-1a26fb748e47" >
 		<http:request-connection protocol="HTTPS" host="kp-apiv2-auth.azurewebsites.net" />
 	</http:request-config>
-	<flow name="main_flow" doc:id="216c2848-4eb1-4cb1-bb00-ba586201339a" >
-		<set-variable value="#[message.attributes.uriParams.itemID]" doc:name="Set Variable" doc:id="efc3867e-6e93-4e55-82c8-b2ddf4bbf304" variableName="itemID"/>
-		<logger level="DEBUG" doc:name="Logger" doc:id="10cab4be-0dcf-4a08-abe3-3c1e4529c709" message="#[vars.itemID]"/>
-		<http:request method="GET" doc:name="HTTP GET Request" doc:id="69573f79-48d6-4b53-bb4e-c17fe4f13ba7" config-ref="HTTP_Request_configuration" path="/api/v2/products/{ID}">
+	<flow name="main_flowFlow" doc:id="043e146d-fd1f-4b68-a852-85e08099c495" >
+		<set-payload value="#[[1086, 1086, 1087, 1123, 1087, 1086, 1088, 1088]]" doc:name="Input products (ID)" doc:id="430e1c12-a57f-47ea-9838-db4daad859ff" />
+		<set-variable value="#[[]]" doc:name="acc init" doc:id="22001d83-fb9c-4596-ac29-088ce1893ed1" variableName="acc"/>
+		<foreach doc:name="For Each" doc:id="8591b50e-125e-43e3-befd-cbae01d84866" >
+			<flow-ref doc:name="HTTPRequest ref" doc:id="158d8c43-7578-47e1-8718-534b986671f1" name="callHTTPRequest" target="result"/>
+			<set-variable value="#[output application/json
+---
+vars.acc &lt;&lt; vars.result]" doc:name="override acc" doc:id="6795764f-66e5-41f7-82a8-5e030fce59d3" variableName="acc"/>
+			<logger level="INFO" doc:name="Logger" doc:id="e8bd5174-5149-454b-9708-98b6c7c1ce46" message="#[vars.acc]"/>
+		</foreach>
+		<ee:transform doc:name="Transform Message" doc:id="4485a235-2267-427c-b5fa-ba525ae8e0b3" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+import * from dw::core::Arrays
+output application/json
+---
+{
+		orderItems: (vars.acc distinctBy $) map (item) -> {
+			productId: item.productID,
+			productCategoryId: item.productSizes.productCategoryID[0],
+			quantity: sizeOf(payload filter $ == item.productID)
+	}, 	grandTotal: if (isEmpty(vars.acc) == false) vars.acc.price reduce (value, sum = 0) -> sum + value as Number 
+					else "Please make any order!"
+
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="Logger" doc:id="f1635d9f-ba69-4e15-a644-49809d371ff4" message="#[sizeOf(payload)]"/>
+	</flow>
+	<sub-flow name="callHTTPRequest" doc:id="a52e1ffb-94d3-478d-9c35-44045616896f" >
+		<http:request method="GET" doc:name="Request" doc:id="c25f1019-aaec-426f-8aef-f343fa26a185" config-ref="HTTP_Request_configuration" path="/api/v2/products/{ID}">
 			<http:uri-params ><![CDATA[#[output application/java
 ---
 {
-	"ID" : vars.itemID
+	ID : payload
 }]]]></http:uri-params>
 		</http:request>
-	</flow>
+	</sub-flow>
 </mule>

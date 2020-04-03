@@ -1,0 +1,4 @@
+kolejność:
+- ogarnąć jak zrobić kumulację requestów z forEach
+- agarnąć jak za pomocą payload.id podawać konkretne uri params do request (quantity?)
+- ogarnąć transformaję do pożądanego formatu w outpucie za pomocą metody reduce

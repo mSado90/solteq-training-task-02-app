@@ -1,0 +1,12 @@
+{
+  "sampleData": {
+    "e3d97a34-e0d6-4f90-9d29-89330de12653": {},
+    "d855fbac-aeec-44e7-bf1b-b251f74eff0f": {},
+    "e9610976-3a7a-43cd-872e-d10f94307f06": {
+      "payload": "sample_data/list_unknown.dwl"
+    },
+    "4485a235-2267-427c-b5fa-ba525ae8e0b3": {
+      "vars-acc": "sample_data/list_unknown_1.dwl"
+    }
+  }
+}
