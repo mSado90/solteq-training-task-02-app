@@ -1,5 +1,85 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <types:mule xmlns:types="http://www.mulesoft.org/schema/mule/types">
-  <types:catalog/>
-  <types:enrichment select="#6a75fe32-f6f9-4bd1-b25d-b05882ce8438"/>
+  <types:catalog>
+    <types:type name="response" format="json">
+      <types:shape format="weave" example="examples/response_1586157714766.json"><![CDATA[%dw 2.0
+
+type response = {|
+  productID: Number {"typeId": "int"}, 
+  name: String, 
+  description: String, 
+  imagepath: String, 
+  imagepathmobile: String, 
+  menuimagepath: String, 
+  menuimagepathmobile: String, 
+  active: Boolean, 
+  price: Number {"typeId": "double"}, 
+  added: Null, 
+  updated: String, 
+  updatedBy: String, 
+  addedBy: Null, 
+  newProductImage: Null, 
+  isSpicy: Boolean, 
+  productSizes: Array<{|    productSizeID: Number {"typeId": "int"},     productCategoryID: Number {"typeId": "int"},     name: String,     priceCorrection: Number {"typeId": "int"},     minimumPrice: Number {"typeId": "int"},     displayOrder: Number {"typeId": "int"},     calculatedPrice: Number {"typeId": "double"},     message: Null,     productID: Number {"typeId": "int"},     ingredients: Array<{|      id: Number {"typeId": "int"},       dosingId: Number {"typeId": "int"}    |}>, 
+    ingredientCount: Null
+  |}>, 
+  ingredients: Array<{|    productID: Number {"typeId": "int"},     ingredientID: Number {"typeId": "int"},     quantity: Number {"typeId": "int"},     isForced: Boolean,     isDisabled: Boolean  |}>, 
+  disabledIngredients: Array<{|    productID: Number {"typeId": "int"},     ingredientID: Number {"typeId": "int"},     quantity: Number {"typeId": "int"},     isForced: Boolean,     isDisabled: Boolean  |}>, 
+  shopMenuType: Array<{|    menuTypeID: Number {"typeId": "int"},     mainGroupID: Number {"typeId": "int"},     name: String,     active: Boolean  |}>, 
+  categories: Array<{|    productCategoryID: Number {"typeId": "int"},     productCategoryName: String  |}>, 
+  modificationLocked: Number {"typeId": "int"}, 
+  hasMinimumPrice: Boolean, 
+  hasFixedMinimumPrice: Boolean
+|} {"example": "{\\\"productID\\\":1086,\\\"name\\\":\\\"Alla Pollo\\\",\\\"description\\\":\\\"Pariloitua kananpoikaa ananaksen kera. \u201DTropicana kanalla\u201D pirist\u00E4v\u00E4 vaihtoehto Tropicana-pizzan yst\u00E4v\u00E4lle.\\\",\\\"imagepath\\\":\\\"https:\\/\\/mob.kotipizza.fi\\/kuvat\\/tuotteet\\/pizza-alla-pollo-1000x1000.png\\\",\\\"imagepathmobile\\\":\\\"https:\\/\\/mob.kotipizza.fi\\/kuvat\\/tuotteet\\/pizza-alla-pollo-1000x1000.png\\\",\\\"menuimagepath\\\":\\\"https:\\/\\/mob.kotipizza.fi\\/kuvat\\/tuotteet\\/pizza-alla-pollo-1000x1000.png\\\",\\\"menuimagepathmobile\\\":\\\"https:\\/\\/mob.kotipizza.fi\\/kuvat\\/tuotteet\\/pizza-alla-pollo-1000x1000.png\\\",\\\"active\\\":true,\\\"price\\\":10.9,\\\"added\\\":null,\\\"updated\\\":\\\"2020-04-02T13:13:26.017\\\",\\\"updatedBy\\\":\\\"grzegorz.brelski@solteq.com\\\",\\\"addedBy\\\":null,\\\"newProductImage\\\":null,\\\"isSpicy\\\":false,\\\"productSizes\\\":[{\\\"productSizeID\\\":511,\\\"productCategoryID\\\":120,\\\"name\\\":\\\"Medium\\\",\\\"priceCorrection\\\":0,\\\"minimumPrice\\\":0,\\\"displayOrder\\\":0,\\\"calculatedPrice\\\":10.9,\\\"message\\\":null,\\\"productID\\\":0,\\\"ingredients\\\":[{\\\"id\\\":2608,\\\"dosingId\\\":5132},{\\\"id\\\":2609,\\\"dosingId\\\":5133},{\\\"id\\\":2610,\\\"dosingId\\\":5134},{\\\"id\\\":2611,\\\"dosingId\\\":5135},{\\\"id\\\":2612,\\\"dosingId\\\":5136},{\\\"id\\\":2613,\\\"dosingId\\\":5141}],\\\"ingredientCount\\\":null},{\\\"productSizeID\\\":510,\\\"productCategoryID\\\":120,\\\"name\\\":\\\"Large\\\",\\\"priceCorrection\\\":0,\\\"minimumPrice\\\":0,\\\"displayOrder\\\":0,\\\"calculatedPrice\\\":21,\\\"message\\\":null,\\\"productID\\\":0,\\\"ingredients\\\":[{\\\"id\\\":2608,\\\"dosingId\\\":5131},{\\\"id\\\":2609,\\\"dosingId\\\":5130},{\\\"id\\\":2610,\\\"dosingId\\\":5129},{\\\"id\\\":2611,\\\"dosingId\\\":5128},{\\\"id\\\":2612,\\\"dosingId\\\":5127},{\\\"id\\\":2613,\\\"dosingId\\\":5140}],\\\"ingredientCount\\\":null},{\\\"productSizeID\\\":509,\\\"productCategoryID\\\":120,\\\"name\\\":\\\"Extra Large\\\",\\\"priceCorrection\\\":0,\\\"minimumPrice\\\":0,\\\"displayOrder\\\":0,\\\"calculatedPrice\\\":30.5,\\\"message\\\":null,\\\"productID\\\":0,\\\"ingredients\\\":[{\\\"id\\\":2608,\\\"dosingId\\\":5122},{\\\"id\\\":2609,\\\"dosingId\\\":5123},{\\\"id\\\":2610,\\\"dosingId\\\":5124},{\\\"id\\\":2611,\\\"dosingId\\\":5125},{\\\"id\\\":2612,\\\"dosingId\\\":5126},{\\\"id\\\":2613,\\\"dosingId\\\":5137}],\\\"ingredientCount\\\":null}],\\\"ingredients\\\":[{\\\"productID\\\":1086,\\\"ingredientID\\\":2608,\\\"quantity\\\":1,\\\"isForced\\\":false,\\\"isDisabled\\\":false},{\\\"productID\\\":1086,\\\"ingredientID\\\":2609,\\\"quantity\\\":1,\\\"isForced\\\":false,\\\"isDisabled\\\":false},{\\\"productID\\\":1086,\\\"ingredientID\\\":2610,\\\"quantity\\\":1,\\\"isForced\\\":false,\\\"isDisabled\\\":false},{\\\"productID\\\":1086,\\\"ingredientID\\\":2611,\\\"quantity\\\":1,\\\"isForced\\\":false,\\\"isDisabled\\\":false},{\\\"productID\\\":1086,\\\"ingredientID\\\":2612,\\\"quantity\\\":1,\\\"isForced\\\":false,\\\"isDisabled\\\":false},{\\\"productID\\\":1086,\\\"ingredientID\\\":2613,\\\"quantity\\\":1,\\\"isForced\\\":true,\\\"isDisabled\\\":false}],\\\"disabledIngredients\\\":[{\\\"productID\\\":1086,\\\"ingredientID\\\":2729,\\\"quantity\\\":1,\\\"isForced\\\":false,\\\"isDisabled\\\":true}],\\\"shopMenuType\\\":[{\\\"menuTypeID\\\":1,\\\"mainGroupID\\\":1,\\\"name\\\":\\\"Laaja\\\",\\\"active\\\":true},{\\\"menuTypeID\\\":2,\\\"mainGroupID\\\":1,\\\"name\\\":\\\"Perus\\\",\\\"active\\\":true}],\\\"categories\\\":[{\\\"productCategoryID\\\":120,\\\"productCategoryName\\\":\\\"Pizzat\\\"}],\\\"modificationLocked\\\":0,\\\"hasMinimumPrice\\\":false,\\\"hasFixedMinimumPrice\\\":false}"}
+
+]]></types:shape>
+    </types:type>
+    <types:type name="output" format="json">
+      <types:shape format="weave" example="examples/desired output-1.json"><![CDATA[%dw 2.0
+
+type output = {|
+  productId: Number {"typeId": "int"}, 
+  productCategoryId: Number {"typeId": "int"}, 
+  quantity: Number {"typeId": "int"}, 
+  sizeId: Number {"typeId": "int"}, 
+  ingredients: Array<{|    productID: Number {"typeId": "int"},     ingredientID: Number {"typeId": "int"},     quantity: Number {"typeId": "int"},     isForced: Boolean,     isDisabled: Boolean  |}>, 
+  itemPrice: Number {"typeId": "int"}, 
+  name: String
+|} {"example": "{\\\"productId\\\":0,\\\"productCategoryId\\\":0,\\\"quantity\\\":0,\\\"sizeId\\\":0,\\\"ingredients\\\":[{\\\"productID\\\":0,\\\"ingredientID\\\":0,\\\"quantity\\\":0,\\\"isForced\\\":true,\\\"isDisabled\\\":true}],\\\"itemPrice\\\":0,\\\"name\\\":\\\"string\\\"}"}
+
+]]></types:shape>
+    </types:type>
+    <types:type name="ooutput_to_reduce" format="json">
+      <types:shape format="weave" example="examples/sample_output_to_reduce.json"><![CDATA[%dw 2.0
+
+type ooutput_to_reduce = {|
+  orderItems: Array<{|    productID: Number {"typeId": "int"},     productCategoryId: Number {"typeId": "int"},     quantity: Number {"typeId": "int"},     sizeID: Array<Number {"typeId": "int"}>, 
+    ingredients: Array<{|      productID: Number {"typeId": "int"},       ingredientID: Number {"typeId": "int"},       quantity: Number {"typeId": "int"},       isForced: Boolean,       isDisabled: Boolean    |}>, 
+    itemPrice: Number {"typeId": "double"}, 
+    name: String
+  |}>, 
+  grandTotal: Number {"typeId": "double"}
+|} {"example": "{\\\"orderItems\\\":[{\\\"productID\\\":1086,\\\"productCategoryId\\\":120,\\\"quantity\\\":1,\\\"sizeID\\\":[511,510,509],\\\"ingredients\\\":[{\\\"productID\\\":1086,\\\"ingredientID\\\":2608,\\\"quantity\\\":1,\\\"isForced\\\":false,\\\"isDisabled\\\":false},{\\\"productID\\\":1086,\\\"ingredientID\\\":2609,\\\"quantity\\\":1,\\\"isForced\\\":false,\\\"isDisabled\\\":false},{\\\"productID\\\":1086,\\\"ingredientID\\\":2610,\\\"quantity\\\":1,\\\"isForced\\\":false,\\\"isDisabled\\\":false},{\\\"productID\\\":1086,\\\"ingredientID\\\":2611,\\\"quantity\\\":1,\\\"isForced\\\":false,\\\"isDisabled\\\":false},{\\\"productID\\\":1086,\\\"ingredientID\\\":2612,\\\"quantity\\\":1,\\\"isForced\\\":false,\\\"isDisabled\\\":false},{\\\"productID\\\":1086,\\\"ingredientID\\\":2613,\\\"quantity\\\":1,\\\"isForced\\\":true,\\\"isDisabled\\\":false}],\\\"itemPrice\\\":10.90,\\\"name\\\":\\\"Alla Pollo\\\"},{\\\"productID\\\":1087,\\\"productCategoryId\\\":120,\\\"quantity\\\":3,\\\"sizeID\\\":[511,510,509],\\\"ingredients\\\":[{\\\"productID\\\":1087,\\\"ingredientID\\\":2612,\\\"quantity\\\":1,\\\"isForced\\\":false,\\\"isDisabled\\\":false},{\\\"productID\\\":1087,\\\"ingredientID\\\":2611,\\\"quantity\\\":1,\\\"isForced\\\":false,\\\"isDisabled\\\":false},{\\\"productID\\\":1087,\\\"ingredientID\\\":2613,\\\"quantity\\\":1,\\\"isForced\\\":false,\\\"isDisabled\\\":false},{\\\"productID\\\":1087,\\\"ingredientID\\\":2609,\\\"quantity\\\":1,\\\"isForced\\\":false,\\\"isDisabled\\\":false},{\\\"productID\\\":1087,\\\"ingredientID\\\":2614,\\\"quantity\\\":1,\\\"isForced\\\":false,\\\"isDisabled\\\":false},{\\\"productID\\\":1087,\\\"ingredientID\\\":2608,\\\"quantity\\\":1,\\\"isForced\\\":false,\\\"isDisabled\\\":false}],\\\"itemPrice\\\":10.90,\\\"name\\\":\\\"Americana\\\"},{\\\"productID\\\":1087,\\\"productCategoryId\\\":120,\\\"quantity\\\":2,\\\"sizeID\\\":[511,510,509],\\\"ingredients\\\":[{\\\"productID\\\":1087,\\\"ingredientID\\\":2612,\\\"quantity\\\":1,\\\"isForced\\\":false,\\\"isDisabled\\\":false},{\\\"productID\\\":1087,\\\"ingredientID\\\":2611,\\\"quantity\\\":1,\\\"isForced\\\":false,\\\"isDisabled\\\":false},{\\\"productID\\\":1087,\\\"ingredientID\\\":2613,\\\"quantity\\\":1,\\\"isForced\\\":false,\\\"isDisabled\\\":false},{\\\"productID\\\":1087,\\\"ingredientID\\\":2609,\\\"quantity\\\":1,\\\"isForced\\\":false,\\\"isDisabled\\\":false},{\\\"productID\\\":1087,\\\"ingredientID\\\":2614,\\\"quantity\\\":1,\\\"isForced\\\":false,\\\"isDisabled\\\":false},{\\\"productID\\\":1087,\\\"ingredientID\\\":2608,\\\"quantity\\\":1,\\\"isForced\\\":false,\\\"isDisabled\\\":false}],\\\"itemPrice\\\":10.90,\\\"name\\\":\\\"Americana\\\"}],\\\"grandTotal\\\":65.40}"}
+
+]]></types:shape>
+    </types:type>
+  </types:catalog>
+  <types:enrichment select="#7a32a1b7-551a-46d7-aafc-531669702179">
+    <types:processor-declaration>
+      <types:input-event>
+        <types:message>
+          <types:payload type="response"/>
+        </types:message>
+      </types:input-event>
+    </types:processor-declaration>
+  </types:enrichment>
+  <types:enrichment select="#4485a235-2267-427c-b5fa-ba525ae8e0b3">
+    <types:processor-declaration>
+      <types:input-event>
+        <types:message>
+          <types:payload type="ooutput_to_reduce"/>
+        </types:message>
+      </types:input-event>
+    </types:processor-declaration>
+  </types:enrichment>
 </types:mule>

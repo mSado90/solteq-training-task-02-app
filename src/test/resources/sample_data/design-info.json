@@ -6,7 +6,13 @@
       "payload": "sample_data/list_unknown.dwl"
     },
     "4485a235-2267-427c-b5fa-ba525ae8e0b3": {
-      "vars-acc": "sample_data/list_unknown_1.dwl"
-    }
+      "vars-acc": "sample_data/list_unknown.json",
+      "payload": "sample_data/json_1.json"
+    },
+    "7a32a1b7-551a-46d7-aafc-531669702179": {
+      "payload": "sample_data/json.json",
+      "vars-quantity": "sample_data/unknown.dwl"
+    },
+    "bd344ef9-f879-4cd3-8b73-b64916029c97": {}
   }
 }

@@ -1,0 +1,17 @@
+{
+      "productId": 0,
+      "productCategoryId": 0,
+      "quantity": 0,
+      "sizeId": 0,
+      "ingredients": [
+        {
+          "productID": 0,
+          "ingredientID": 0,
+          "quantity": 0,
+          "isForced": true,
+          "isDisabled": true
+        }
+      ],
+      "itemPrice": 0,
+      "name": "string"
+}
