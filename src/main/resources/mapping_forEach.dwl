@@ -10,7 +10,7 @@ output application/json
 	(('productCategoryId'): payload.productSizes.productCategoryID[0])
 		if ($$$ == 2),
 	(('quantity'): vars.quantity) if ($$$ == 3),
-	(('sizeID'): payload.productSizes.productSizeID) if ($$$ == 4),
+	(('sizeID'): payload.productSizes.productSizeID[0]) if ($$$ == 4),
 	(('ingredients'): payload.ingredients) if ($$$ == 5),
 	(('itemPrice'): payload.price) if ($$$ == 6),
 	(('name'): payload.name) if ($$$ == 7)

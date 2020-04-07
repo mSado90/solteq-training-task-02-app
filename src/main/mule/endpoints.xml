@@ -10,8 +10,8 @@ http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/
 	</http:listener-config>
 	<flow name="endpointsFlow" doc:id="d3168c3e-383d-46e2-bf8e-2c761298e8c1" >
 		<http:listener doc:name="HTTP Listener" doc:id="a60b3f48-b82d-4e25-8d71-8f4040beb797" config-ref="HTTP_Listener_config" path="/">
-			<http:error-response statusCode="404" >
-				<http:body ><![CDATA[#[output text/plain --- (error.description default '') ++ '\n\nResource not found! Please enter a valid productID']]]></http:body>
+			<http:error-response statusCode="400" >
+				<http:body ><![CDATA[#[output text/plain --- error.description default '']]]></http:body>
 			</http:error-response>
 		</http:listener>
 		<flow-ref doc:name="Reference to main_flow" doc:id="518f0c4c-eac7-4d98-859e-f494420860d5" name="main_flowFlow"/>
