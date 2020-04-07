@@ -9,48 +9,47 @@ http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/
 		<http:request-connection protocol="HTTPS" host="kp-apiv2-auth.azurewebsites.net" />
 	</http:request-config>
 	<flow name="main_flowFlow" doc:id="043e146d-fd1f-4b68-a852-85e08099c495" >
-		<set-variable value="#[[]]" doc:name="errorMessages var" doc:id="3d517976-f7b1-4d3b-8eac-3bfd7a77f34e" variableName="errorMessages"/>
+		<set-variable value="#[[]]" doc:name="errors array" doc:id="a0c998f1-e9db-4164-9a12-19a2c52d2fed" variableName="errors"/>
 		<set-variable value="#[[]]" doc:name="acc init" doc:id="22001d83-fb9c-4596-ac29-088ce1893ed1" variableName="acc"/>
 		<set-variable value="#[false]" doc:name="hasErrors var" doc:id="afaa2f6f-a816-4839-8e54-6f5006b99c4e" variableName="hasErrors"/>
 		<foreach doc:name="For Each" doc:id="8591b50e-125e-43e3-befd-cbae01d84866" collection="#[message.payload]">
 			<set-variable value="#[payload.quantity]" doc:name="quantity variable" doc:id="b60958bf-aee5-45a8-94c8-602de394afba" variableName="quantity" />
-			<logger level="DEBUG" doc:name="Logger" doc:id="60e03374-736f-4952-9e50-43edd3e0b348" message="#[vars.quantity]" />
-			<try doc:name="Try" doc:id="a55909c8-b3e0-4039-9eec-0b1ff38c2899">
-				<http:request method="GET" doc:name="Request" doc:id="c25f1019-aaec-426f-8aef-f343fa26a185" config-ref="HTTP_Request_configuration" path="#['/api/v2/products/' ++ (payload.productId)]">
+			<try doc:name="Try" doc:id="245f8b34-3482-4415-9b85-fc563c7f62a8" >
+				<choice doc:name="Choice" doc:id="61e2a8bd-d4ed-4658-ab70-6993978a1dfa">
+				<when expression="#[vars.quantity == 0]">
+					<logger level="DEBUG" doc:name="Logger" doc:id="60e03374-736f-4952-9e50-43edd3e0b348" message="#[vars.quantity]" />
+					<raise-error doc:name="quantity equlas 0 error" doc:id="01077ac6-3194-47a2-9091-e505c8cff2cf" type="REQUEST: QUANTITY_EQUALS_0" description="Quantity cannot be qual to 0." />
+				</when>
+				<otherwise>
+					<http:request method="GET" doc:name="Request" doc:id="c25f1019-aaec-426f-8aef-f343fa26a185" config-ref="HTTP_Request_configuration" path="#['/api/v2/products/' ++ (payload.productId)]">
 		</http:request>
-				<ee:transform doc:name="transform response from HTTP" doc:id="7a32a1b7-551a-46d7-aafc-531669702179">
+					<logger level="INFO" doc:name="sample return from HTTP" doc:id="69879d7c-c15a-4b6a-a90f-92c230b05ae7" message="#[payload]"/>
+						<ee:transform doc:name="transform response from HTTP" doc:id="7a32a1b7-551a-46d7-aafc-531669702179">
 				<ee:message>
 					<ee:set-payload resource="mapping_forEach.dwl" />
 				</ee:message>
 			</ee:transform>
-				<set-variable value="#[output application/json
+					<set-variable value="#[output application/json
 ---
 vars.acc &lt;&lt; payload]" doc:name="override acc" doc:id="6795764f-66e5-41f7-82a8-5e030fce59d3" variableName="acc" />
-				<logger level="DEBUG" doc:name="Logger" doc:id="84a93046-b727-459c-98cc-05d023903890" message="#[vars.rootMessage.payload[vars.counter - 1]]" />
+					<logger level="DEBUG" doc:name="Logger" doc:id="84a93046-b727-459c-98cc-05d023903890" message="#[vars.rootMessage.payload[vars.counter - 1]]" />
+				</otherwise>
+			</choice>
 				<error-handler>
-					<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" doc:id="ce7da2a9-9de3-4eaf-a99b-3c67359dece3" type="ANY">
-						<set-variable value="#[true]" doc:name="hasErrors change" doc:id="01aa9129-9b50-4fc5-89b5-dd1d1de70947" variableName="hasErrors" />
-						<logger level="INFO" doc:name="Logger" doc:id="184fff96-7f32-46c4-a097-09dfb731caea" message="#[vars.hasErrors]" />
-					</on-error-continue>
+					<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="2991e759-3716-4d34-b810-666f543a03f9" type="REQUEST: QUANTITY_EQUALS_0">
+						<set-variable value="#[true]" doc:name="hasErrors change" doc:id="5602e013-e732-44b5-85e1-cffbe0f27e82" variableName="hasErrors" />
+					</on-error-propagate>
+					<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="e0ba28f8-0f32-4284-b60c-33c5bc55767a" type="HTTP:NOT_FOUND">
+						<set-variable value="#[true]" doc:name="hasErrors change" doc:id="01a8dda6-4a31-4e8c-8346-5bf317dcf539" variableName="hasErrors" />
+					</on-error-propagate>
 				</error-handler>
 			</try>
 		</foreach>
-		<choice doc:name="Choice" doc:id="580d1dec-4566-46f0-a983-2878376bb00b" >
-			<when expression="#[vars.hasErrors]">
-				<raise-error doc:name="Raise error" doc:id="e5b5b9a8-7691-40f3-8431-663e2b094179" type="REQUEST: INCORRECT_PRODUCT_ID" description="Please enter the correct product ID."/>
-			</when>
-			<otherwise >
-				<ee:transform doc:name="transform final output" doc:id="4485a235-2267-427c-b5fa-ba525ae8e0b3">
+		<logger level="INFO" doc:name="Logger" doc:id="5fdd61af-3534-4816-84e7-e5f602c22489" message="#[vars.errorMessages]"/>
+		<ee:transform doc:name="transform final output" doc:id="4485a235-2267-427c-b5fa-ba525ae8e0b3">
 			<ee:message>
 				<ee:set-payload resource="mapping_flow.dwl" />
 			</ee:message>
 		</ee:transform>
-			</otherwise>
-		</choice>
-		<error-handler>
-			<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="ea274f9a-03a1-4f20-bb34-4111c8c3bc4c" >
-				<logger level="INFO" doc:name="Logger" doc:id="3329e3c8-febe-4cf4-9a3e-c564ca171edd" message="#[error.description]"/>
-			</on-error-propagate>
-		</error-handler>
 	</flow>
 </mule>
