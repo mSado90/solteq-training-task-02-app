@@ -1,15 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:http="http://www.mulesoft.org/schema/mule/http"
-	xmlns="http://www.mulesoft.org/schema/mule/core"
-	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+<mule xmlns:amqp="http://www.mulesoft.org/schema/mule/amqp" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
 http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
-http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/amqp http://www.mulesoft.org/schema/mule/amqp/current/mule-amqp.xsd">
 	<http:request-config name="HTTP_Request_configuration" doc:name="HTTP Request configuration" doc:id="06d7a756-3f90-4b78-94fe-1a26fb748e47" >
 		<http:request-connection protocol="HTTPS" host="kp-apiv2-auth.azurewebsites.net" />
 	</http:request-config>
+	<amqp:config name="AMQP_Config" doc:name="AMQP Config" doc:id="a0f7a027-c460-43f8-b54f-7f5b72e6ef82" >
+		<amqp:connection host="localhost" username="guest" password="guest" />
+	</amqp:config>
 	<flow name="main_flowFlow" doc:id="043e146d-fd1f-4b68-a852-85e08099c495" >
-		<set-variable value="#[[]]" doc:name="errors array" doc:id="a0c998f1-e9db-4164-9a12-19a2c52d2fed" variableName="errors"/>
+		<set-variable value="#[[] as Array]" doc:name="error messages array" doc:id="a0c998f1-e9db-4164-9a12-19a2c52d2fed" variableName="errorMessages"/>
 		<set-variable value="#[[]]" doc:name="acc init" doc:id="22001d83-fb9c-4596-ac29-088ce1893ed1" variableName="acc"/>
 		<set-variable value="#[false]" doc:name="hasErrors var" doc:id="afaa2f6f-a816-4839-8e54-6f5006b99c4e" variableName="hasErrors"/>
 		<foreach doc:name="For Each" doc:id="8591b50e-125e-43e3-befd-cbae01d84866" collection="#[message.payload]">
@@ -36,20 +40,40 @@ vars.acc &lt;&lt; payload]" doc:name="override acc" doc:id="6795764f-66e5-41f7-8
 				</otherwise>
 			</choice>
 				<error-handler>
-					<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="2991e759-3716-4d34-b810-666f543a03f9" type="REQUEST: QUANTITY_EQUALS_0">
+					<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" doc:id="2991e759-3716-4d34-b810-666f543a03f9" type="REQUEST: QUANTITY_EQUALS_0">
 						<set-variable value="#[true]" doc:name="hasErrors change" doc:id="5602e013-e732-44b5-85e1-cffbe0f27e82" variableName="hasErrors" />
-					</on-error-propagate>
-					<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="e0ba28f8-0f32-4284-b60c-33c5bc55767a" type="HTTP:NOT_FOUND">
+						<set-variable value="#[output application/json
+---
+vars.errorMessages &lt;&lt; error.description]" doc:name="error messages override" doc:id="874ff73e-f857-438f-8347-e8359ceb9a06" variableName="errorMessages"/>
+						<logger level="DEBUG" doc:name="Logger" doc:id="5fdd61af-3534-4816-84e7-e5f602c22489" message="#[vars.errorMessages]" />
+					</on-error-continue>
+					<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" doc:id="e0ba28f8-0f32-4284-b60c-33c5bc55767a" type="ANY">
 						<set-variable value="#[true]" doc:name="hasErrors change" doc:id="01a8dda6-4a31-4e8c-8346-5bf317dcf539" variableName="hasErrors" />
-					</on-error-propagate>
+						<set-variable value="#[output application/json
+---
+if (error.description default '' startsWith('HTTP GET on resource')) vars.errorMessages &lt;&lt; 'Please enter a valid product ID.'
+else vars.errorMessages &lt;&lt; error.description]" doc:name="error messages override" doc:id="a7383c1f-e182-43f5-8fd6-6b7da76f76d6" variableName="errorMessages"/>
+						<logger level="DEBUG" doc:name="Logger" doc:id="237efd1f-daad-4786-ab20-811d814a67d0" message="#[vars.errorMessages]"/>
+					</on-error-continue>
 				</error-handler>
 			</try>
 		</foreach>
-		<logger level="INFO" doc:name="Logger" doc:id="5fdd61af-3534-4816-84e7-e5f602c22489" message="#[vars.errorMessages]"/>
-		<ee:transform doc:name="transform final output" doc:id="4485a235-2267-427c-b5fa-ba525ae8e0b3">
+		<choice doc:name="Choice" doc:id="9a416dcd-13e8-4a52-9959-4eda85244758" >
+			<when expression="#[vars.hasErrors]">
+				<raise-error doc:name="Raise error" doc:id="12ac9a71-00fc-453c-aec0-a823dd6b7c75" description="validation errors" type="REQUEST:VALIDATION_ERROR"/>
+			</when>
+			<otherwise >
+				<ee:transform doc:name="transform final output" doc:id="4485a235-2267-427c-b5fa-ba525ae8e0b3">
 			<ee:message>
 				<ee:set-payload resource="mapping_flow.dwl" />
 			</ee:message>
 		</ee:transform>
+				<amqp:publish doc:name="Publish" doc:id="c1938715-024e-4cf5-8626-42d94f183cfe" config-ref="AMQP_Config">
+			<amqp:routing-keys>
+				<amqp:routing-key value="test" />
+			</amqp:routing-keys>
+		</amqp:publish>
+			</otherwise>
+		</choice>
 	</flow>
 </mule>

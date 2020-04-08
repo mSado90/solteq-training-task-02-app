@@ -1,4 +1,27 @@
 kolejność:
-- ogarnąć jak zrobić kumulację requestów z forEach
-- agarnąć jak za pomocą payload.id podawać konkretne uri params do request (quantity?)
-- ogarnąć transformaję do pożądanego formatu w outpucie za pomocą metody reduce
+- ogarnąć jak zrobić kumulację requestów z forEach (DONE)
+- agarnąć jak za pomocą payload.id podawać konkretne uri params do request (quantity?) (DONE ALMOST)
+- ogarnąć transformaję do pożądanego formatu w outpucie za pomocą metody reduce (TO DO)
+
+
+
+mapping w for-each do postaci:
+
+
+{
+      "productId": 0,
+      "productCategoryId": 0,
+      "quantity": 0,
+      "sizeId": 0,
+      "ingredients": [
+        {
+          "productID": 0,
+          "ingredientID": 0,
+          "quantity": 0,
+          "isForced": true,
+          "isDisabled": true
+        }
+      ],
+      "itemPrice": 0,
+      "name": "string"
+}

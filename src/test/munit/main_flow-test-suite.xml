@@ -8,30 +8,35 @@
 		http://www.mulesoft.org/schema/mule/munit http://www.mulesoft.org/schema/mule/munit/current/mule-munit.xsd
 		http://www.mulesoft.org/schema/mule/munit-tools  http://www.mulesoft.org/schema/mule/munit-tools/current/mule-munit-tools.xsd">
 	<munit:config name="main_flow-test-suite.xml" />
+	<munit:before-test name="main_flow-test-suiteBefore_Test" doc:id="a8abcb97-20ce-4571-8ecd-5edff1cc8683" >
+		<munit-tools:mock-when doc:name="Mock when" doc:id="cf4c5422-6103-4fc1-b3ae-c8daaa5446fd" />
+	</munit:before-test>
 	<munit:test name="main_flow-test-suite-main_flowFlowTest" doc:id="3d4a2787-0686-4eda-8dcd-7471a6495d12" description="Test">
-		<munit:behavior >
-			<munit-tools:mock-when doc:name="Mock when" doc:id="6d3fd54f-4e77-421f-a526-baa7426009b4" processor="http:request">
-				<munit-tools:with-attributes >
+		<munit:behavior>
+			<munit-tools:mock-when doc:name="Mock HTTP Request" doc:id="6d3fd54f-4e77-421f-a526-baa7426009b4" processor="http:request">
+				<munit-tools:with-attributes>
 					<munit-tools:with-attribute whereValue="c25f1019-aaec-426f-8aef-f343fa26a185" attributeName="doc:id" />
 				</munit-tools:with-attributes>
-				<munit-tools:then-return >
+				<munit-tools:then-return>
 					<munit-tools:payload value="#[readUrl('classpath://sample_data/sample_request_output.json', 'application/json')]" />
 				</munit-tools:then-return>
 			</munit-tools:mock-when>
 		</munit:behavior>
 		<munit:execution >
-			<munit:set-event doc:name="Set Event" doc:id="d9987d47-0e41-43c3-bd0f-3562bd320d9f" >
+			<munit:set-event doc:name="set input payload" doc:id="d9987d47-0e41-43c3-bd0f-3562bd320d9f" >
 				<munit:payload value="#[readUrl('classpath://sample_data/sample_input.json', 'application/json')]" />
 			</munit:set-event>
-			<flow-ref doc:name="Flow-ref to main_flowFlow" doc:id="a96de3d9-bdf2-4c38-a09e-e26e07902d85" name="main_flowFlow"/>
+			<flow-ref doc:name="Reference to main_flow" doc:id="a96de3d9-bdf2-4c38-a09e-e26e07902d85" name="main_flowFlow"/>
 		</munit:execution>
 		<munit:validation >
 			<munit-tools:assert doc:name="Assert expression" doc:id="a1580d3e-38a8-4a86-b5ca-a27f38eaebba" >
 				<munit-tools:that ><![CDATA[#[import * from dw::test::Asserts 
  ---
 payload must [
-	beObject()
-
+	beObject(),
+	payload.orderItems.productID[0] must equalTo(1086),
+	sizeOf(payload.orderItems[0].ingredients) must equalTo(6),
+	payload.grandTotal must equalTo(163.50)
 ]]]]></munit-tools:that>
 			</munit-tools:assert>
 		</munit:validation>
