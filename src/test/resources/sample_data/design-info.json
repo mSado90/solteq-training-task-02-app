@@ -9,7 +9,9 @@
       "vars-acc": "sample_data/list_unknown.json",
       "payload": "sample_data/json_1.json"
     },
-    "7a32a1b7-551a-46d7-aafc-531669702179": {},
+    "7a32a1b7-551a-46d7-aafc-531669702179": {
+      "payload": "sample_data/json.json"
+    },
     "bd344ef9-f879-4cd3-8b73-b64916029c97": {}
   }
 }

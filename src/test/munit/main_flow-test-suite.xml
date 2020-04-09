@@ -8,13 +8,17 @@
 		http://www.mulesoft.org/schema/mule/munit http://www.mulesoft.org/schema/mule/munit/current/mule-munit.xsd
 		http://www.mulesoft.org/schema/mule/munit-tools  http://www.mulesoft.org/schema/mule/munit-tools/current/mule-munit-tools.xsd">
 	<munit:config name="main_flow-test-suite.xml" />
-	<munit:before-test name="main_flow-test-suiteBefore_Test" doc:id="a8abcb97-20ce-4571-8ecd-5edff1cc8683" >
-		<munit-tools:mock-when doc:name="Mock when" doc:id="cf4c5422-6103-4fc1-b3ae-c8daaa5446fd" />
-	</munit:before-test>
-	<munit:test name="main_flow-test-suite-main_flowFlowTest" doc:id="3d4a2787-0686-4eda-8dcd-7471a6495d12" description="Test">
-		<munit:behavior>
-			<munit-tools:mock-when doc:name="Mock HTTP Request" doc:id="6d3fd54f-4e77-421f-a526-baa7426009b4" processor="http:request">
+	<munit:before-suite name="main_flowBefore_Suite" doc:id="d6a5d78a-159d-4a26-8c9e-1fb1bce84547" >
+		<munit-tools:mock-when doc:name="Mock AMQP Publish" doc:id="700abd45-35b0-4363-9f56-78374134cf09" processor="amqp:publish">
 				<munit-tools:with-attributes>
+					<munit-tools:with-attribute whereValue="c1938715-024e-4cf5-8626-42d94f183cfe" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+			</munit-tools:mock-when>
+	</munit:before-suite>
+	<munit:test name="main_flowTest" doc:id="3d4a2787-0686-4eda-8dcd-7471a6495d12" description="Test">
+		<munit:behavior>
+			<munit-tools:mock-when doc:name="Mock HTTP Request" doc:id="a41d7b50-037c-44ca-b461-bd20e4798bc9" processor="http:request">
+				<munit-tools:with-attributes >
 					<munit-tools:with-attribute whereValue="c25f1019-aaec-426f-8aef-f343fa26a185" attributeName="doc:id" />
 				</munit-tools:with-attributes>
 				<munit-tools:then-return>
@@ -23,22 +27,91 @@
 			</munit-tools:mock-when>
 		</munit:behavior>
 		<munit:execution >
-			<munit:set-event doc:name="set input payload" doc:id="d9987d47-0e41-43c3-bd0f-3562bd320d9f" >
-				<munit:payload value="#[readUrl('classpath://sample_data/sample_input.json', 'application/json')]" />
-			</munit:set-event>
+			<set-payload value='#[[
+    {
+        "productId": 1086,
+        "quantity": 2
+    }
+    
+]]' doc:name="Set Payload" doc:id="2a6ce421-aea5-426f-aa6c-fead781ee46a" />
 			<flow-ref doc:name="Reference to main_flow" doc:id="a96de3d9-bdf2-4c38-a09e-e26e07902d85" name="main_flowFlow"/>
 		</munit:execution>
-		<munit:validation >
-			<munit-tools:assert doc:name="Assert expression" doc:id="a1580d3e-38a8-4a86-b5ca-a27f38eaebba" >
-				<munit-tools:that ><![CDATA[#[import * from dw::test::Asserts 
+		<munit:validation>
+			<munit-tools:assert doc:name="Assert expression" doc:id="c9a8f7e7-cb06-465d-b3b4-06c866f90530" >
+				<munit-tools:that ><![CDATA[#[%dw 2.0
+import * from dw::test::Asserts 
  ---
 payload must [
 	beObject(),
 	payload.orderItems.productID[0] must equalTo(1086),
 	sizeOf(payload.orderItems[0].ingredients) must equalTo(6),
-	payload.grandTotal must equalTo(163.50)
-]]]]></munit-tools:that>
+	payload.grandTotal must equalTo(21.80)
+	]]]]></munit-tools:that>
 			</munit-tools:assert>
+		</munit:validation>
+	</munit:test>
+	<munit:test name="error_0_quantity_test" doc:id="70b86b8a-92a8-4611-9336-af5ff9a83998" >
+		<munit:execution >
+			<set-payload value='#[[
+    {
+        "productId": 1086,
+        "quantity": 0
+    }
+    
+]]' doc:name="Set Payload" doc:id="1db02ab2-81f4-49ad-b818-b4ad7b772491" />
+			<try doc:name="Try" doc:id="4519c0da-8542-49ed-80f0-8e17cb402271" >
+				<flow-ref doc:name="Reference to main_flow" doc:id="2ba9920f-e614-4572-9ac8-eff9b6958ee7" name="main_flowFlow" />
+				<error-handler >
+					<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" doc:id="8691d95d-c29c-47e6-9f50-e81e6919d9f8" type="ANY"/>
+				</error-handler>
+			</try>
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:verify-call doc:name="Verify call for hasError variable" doc:id="763cbbf7-79cf-433a-893d-dc0a7ca9b5a9" processor="set-variable" atLeast="1">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="5602e013-e732-44b5-85e1-cffbe0f27e82" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+			</munit-tools:verify-call>
+			<munit-tools:verify-call doc:name="Verify call for errorMessages variable" doc:id="fa03b7b0-7926-4434-aca5-d3cf3d97efcb" processor="set-variable" atLeast="1">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="874ff73e-f857-438f-8347-e8359ceb9a06" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+			</munit-tools:verify-call>
+		</munit:validation>
+	</munit:test>
+	<munit:test name="http_request_error_test" doc:id="47f042cc-e2c7-4180-9671-05c8631ae8bb" >
+		<munit:behavior >
+			<munit-tools:mock-when doc:name="Mock HTTP Request" doc:id="298c1b64-68a8-4bcf-bdd0-f3418bba99cd" processor="http:request">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="c25f1019-aaec-426f-8aef-f343fa26a185" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:error typeId="ANY" />
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+		</munit:behavior>
+		<munit:execution >
+			<munit:set-event doc:name="set input payload" doc:id="7bd5ccbf-27fe-4e30-883b-c86e920dca0e" >
+				<munit:payload value="#[readUrl('classpath://sample_data/sample_input.json', 'application/json')]" />
+			</munit:set-event>
+			<try doc:name="Try" doc:id="9e1059ca-a2a8-4d3c-a9c8-54a419c30976" >
+				<flow-ref doc:name="Reference to main_flow" doc:id="6342f00b-244b-4179-bf90-f92a5be9b502" name="main_flowFlow" />
+				<error-handler >
+					<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" doc:id="2c6ec4ae-0732-45c2-9435-5a13e266e2c2" type="ANY"/>
+				</error-handler>
+			</try>
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:verify-call doc:name="Verify call for hasError variable" doc:id="ee541a43-14eb-47a7-b83e-ca3a6def1637" processor="set-variable" atLeast="1">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="01a8dda6-4a31-4e8c-8346-5bf317dcf539" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+			</munit-tools:verify-call>
+			<munit-tools:verify-call doc:name="Verify call for errorMessages variable" doc:id="b3492029-9b26-4c41-9487-e192456c922a" processor="set-variable" atLeast="1">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="a7383c1f-e182-43f5-8fd6-6b7da76f76d6" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+			</munit-tools:verify-call>
 		</munit:validation>
 	</munit:test>
 

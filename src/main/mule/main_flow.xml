@@ -22,12 +22,12 @@ http://www.mulesoft.org/schema/mule/amqp http://www.mulesoft.org/schema/mule/amq
 				<choice doc:name="Choice" doc:id="61e2a8bd-d4ed-4658-ab70-6993978a1dfa">
 				<when expression="#[vars.quantity == 0]">
 					<logger level="DEBUG" doc:name="Logger" doc:id="60e03374-736f-4952-9e50-43edd3e0b348" message="#[vars.quantity]" />
-					<raise-error doc:name="quantity equlas 0 error" doc:id="01077ac6-3194-47a2-9091-e505c8cff2cf" type="REQUEST: QUANTITY_EQUALS_0" description="Quantity cannot be qual to 0." />
+					<raise-error doc:name="quantity equlas 0 error" doc:id="01077ac6-3194-47a2-9091-e505c8cff2cf" type="REQUEST: QUANTITY_EQUALS_0" description="#['Quantity cannot be qual to 0 for product ' ++ payload.productId]" />
 				</when>
 				<otherwise>
 					<http:request method="GET" doc:name="Request" doc:id="c25f1019-aaec-426f-8aef-f343fa26a185" config-ref="HTTP_Request_configuration" path="#['/api/v2/products/' ++ (payload.productId)]">
 		</http:request>
-					<logger level="INFO" doc:name="sample return from HTTP" doc:id="69879d7c-c15a-4b6a-a90f-92c230b05ae7" message="#[payload]"/>
+					<logger level="DEBUG" doc:name="sample return from HTTP" doc:id="69879d7c-c15a-4b6a-a90f-92c230b05ae7" message="#[payload]"/>
 						<ee:transform doc:name="transform response from HTTP" doc:id="7a32a1b7-551a-46d7-aafc-531669702179">
 				<ee:message>
 					<ee:set-payload resource="mapping_forEach.dwl" />
@@ -51,7 +51,7 @@ vars.errorMessages &lt;&lt; error.description]" doc:name="error messages overrid
 						<set-variable value="#[true]" doc:name="hasErrors change" doc:id="01a8dda6-4a31-4e8c-8346-5bf317dcf539" variableName="hasErrors" />
 						<set-variable value="#[output application/json
 ---
-if (error.description default '' startsWith('HTTP GET on resource')) vars.errorMessages &lt;&lt; 'Please enter a valid product ID.'
+if (error.description default '' startsWith('HTTP GET on resource')) vars.errorMessages &lt;&lt; ('Please enter a valid product ID of product ' ++ (payload.productId))
 else vars.errorMessages &lt;&lt; error.description]" doc:name="error messages override" doc:id="a7383c1f-e182-43f5-8fd6-6b7da76f76d6" variableName="errorMessages"/>
 						<logger level="DEBUG" doc:name="Logger" doc:id="237efd1f-daad-4786-ab20-811d814a67d0" message="#[vars.errorMessages]"/>
 					</on-error-continue>
@@ -63,14 +63,15 @@ else vars.errorMessages &lt;&lt; error.description]" doc:name="error messages ov
 				<raise-error doc:name="Raise error" doc:id="12ac9a71-00fc-453c-aec0-a823dd6b7c75" description="validation errors" type="REQUEST:VALIDATION_ERROR"/>
 			</when>
 			<otherwise >
+				<logger level="DEBUG" doc:name="Logger" doc:id="a378912f-fb30-4ec5-b6e4-51e8d2fb9673" message="#[vars.acc]"/>
 				<ee:transform doc:name="transform final output" doc:id="4485a235-2267-427c-b5fa-ba525ae8e0b3">
 			<ee:message>
 				<ee:set-payload resource="mapping_flow.dwl" />
 			</ee:message>
 		</ee:transform>
-				<amqp:publish doc:name="Publish" doc:id="c1938715-024e-4cf5-8626-42d94f183cfe" config-ref="AMQP_Config">
+				<amqp:publish doc:name="Publish" doc:id="c1938715-024e-4cf5-8626-42d94f183cfe" config-ref="AMQP_Config" exchangeName="#['amq.direct']">
 			<amqp:routing-keys>
-				<amqp:routing-key value="test" />
+						<amqp:routing-key value="test" />
 			</amqp:routing-keys>
 		</amqp:publish>
 			</otherwise>
